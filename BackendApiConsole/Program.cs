@@ -1,14 +1,39 @@
 ﻿using BackendApiConsole.Nucleo;
 
 
-Guid tenantId = Guid.Parse("CB0CDCD5-DEE1-4665-AD3E-388733FCDF3B");
+Guid tenantId = Guid.Parse("A31CF8A0-7B4D-EE11-A89E-F0D41578B814");
 
 using (HttpClient httpClient = new HttpClient())
 {
     try
     {
-        Tenant tenant = new Tenant();
+        //Tenant tenant = new Tenant();
+        Defeito defeito = new Defeito();
         Task<HttpResponseMessage> response;
+
+
+        #region IncluirDefeito
+        for (int i = 0; i < 10; i++)
+        {
+            defeito = new Defeito();
+            defeito.Referencia = "DEF AUT" + DateTime.Now.ToString() + i.ToString();
+            defeito.Descricao = "DEF AUT DESC " + DateTime.Now.ToString() + i.ToString();
+            defeito.Id_Tenant = tenantId;
+            response = defeito.Incluir(httpClient, defeito);
+
+            if (response.Result.IsSuccessStatusCode)
+            {
+                string apiResponse = await response.Result.Content.ReadAsStringAsync();
+                Console.WriteLine("Resposta da API: " + apiResponse);
+            }
+            else
+            {
+                Console.WriteLine($"Erro na solicitação: {response.Result.StatusCode} - {response.Result.ReasonPhrase}");
+            }
+        }
+        #endregion
+
+
 
         //#region ListarNumeros
         //response = tenant.ListarNumeros(httpClient);
@@ -51,15 +76,15 @@ using (HttpClient httpClient = new HttpClient())
         //}
         //#endregion
 
-        #region AlterarListarTenant
-        Task<List<TenantResponse>> listatenants = tenant.ListarTodos(httpClient);
-        foreach (TenantResponse tenantItem in listatenants.Result.ToList())
-        {
-            Console.WriteLine("Excluindo: " + tenantItem.Descricao.ToString());
-            response = tenant.Alterar(httpClient, tenantItem);
-            Console.WriteLine("Excluindo: " + response.Result.StatusCode);
-        }
-        #endregion
+        //#region AlterarListarTenant
+        //Task<List<TenantResponse>> listatenants = tenant.ListarTodos(httpClient);
+        //foreach (TenantResponse tenantItem in listatenants.Result.ToList())
+        //{
+        //    Console.WriteLine("Excluindo: " + tenantItem.Descricao.ToString());
+        //    response = tenant.Alterar(httpClient, tenantItem);
+        //    Console.WriteLine("Excluindo: " + response.Result.StatusCode);
+        //}
+        //#endregion
 
     }
     catch (Exception ex)
