@@ -1,5 +1,5 @@
 ﻿using BackendApiConsole.Nucleo;
-
+using static BackendApiConsole.Nucleo.Defeito;
 
 Guid tenantId = Guid.Parse("A31CF8A0-7B4D-EE11-A89E-F0D41578B814");
 
@@ -12,27 +12,36 @@ using (HttpClient httpClient = new HttpClient())
         Task<HttpResponseMessage> response;
 
 
-        #region IncluirDefeito
-        for (int i = 0; i < 10; i++)
-        {
-            defeito = new Defeito();
-            defeito.Referencia = "DEF AUT" + DateTime.Now.ToString() + i.ToString();
-            defeito.Descricao = "DEF AUT DESC " + DateTime.Now.ToString() + i.ToString();
-            defeito.Id_Tenant = tenantId;
-            response = defeito.Incluir(httpClient, defeito);
+        //#region IncluirDefeito
+        //for (int i = 0; i < 10; i++)
+        //{
+        //    defeito = new Defeito();
+        //    defeito.Referencia = "DEF AUT" + DateTime.Now.ToString() + i.ToString();
+        //    defeito.Descricao = "DEF AUT DESC " + DateTime.Now.ToString() + i.ToString();
+        //    defeito.Id_Tenant = tenantId;
+        //    response = defeito.Incluir(httpClient, defeito);
 
-            if (response.Result.IsSuccessStatusCode)
-            {
-                string apiResponse = await response.Result.Content.ReadAsStringAsync();
-                Console.WriteLine("Resposta da API: " + apiResponse);
-            }
-            else
-            {
-                Console.WriteLine($"Erro na solicitação: {response.Result.StatusCode} - {response.Result.ReasonPhrase}");
-            }
+        //    if (response.Result.IsSuccessStatusCode)
+        //    {
+        //        string apiResponse = await response.Result.Content.ReadAsStringAsync();
+        //        Console.WriteLine("Resposta da API: " + apiResponse);
+        //    }
+        //    else
+        //    {
+        //        Console.WriteLine($"Erro na solicitação: {response.Result.StatusCode} - {response.Result.ReasonPhrase}");
+        //    }
+        //}
+        //#endregion
+
+        #region AlterarListarDefeito
+        Task<List<DefeitoResponse>> listatenants = defeito.ListarTodos(httpClient);
+        foreach (DefeitoResponse defeitoItem in listatenants.Result.ToList())
+        {
+            Console.WriteLine("Excluindo: " + defeitoItem.Descricao.ToString());
+            response = defeito.Alterar(httpClient, defeitoItem);
+            Console.WriteLine("Excluindo: " + response.Result.StatusCode);
         }
         #endregion
-
 
 
         //#region ListarNumeros
