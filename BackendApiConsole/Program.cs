@@ -7,9 +7,46 @@ using (HttpClient httpClient = new HttpClient())
 {
     try
     {
-        //Tenant tenant = new Tenant();
-        Defeito defeito = new Defeito();
         Task<HttpResponseMessage> response;
+        Console.WriteLine("Tenant: " + tenantId);
+        Console.WriteLine("-----------------------------------------------------");
+        Console.WriteLine("Tenant Validando conexao ");
+        Tenant tenant = new Tenant();
+        var resultado = tenant.ValidaConexao(httpClient);
+        if (resultado.Result != "Ok")
+        {
+            Console.WriteLine("Tenant conexao: " + resultado);
+            return;
+        }
+        Console.WriteLine("Tenant conexao: " + resultado.Result);
+        Console.WriteLine("-----------------------------------------------------");
+        Console.WriteLine("Tenant INSERIR: " + resultado.Result);
+        Task<TenantResponse> novoTenant = tenant.Incluir(httpClient);
+        Guid idTenant = novoTenant.Result.Id;
+        Console.WriteLine("Novo tenant : " + idTenant);
+        Console.WriteLine("-----------------------------------------------------");
+        Console.WriteLine("Tenant ALTERAR: " + idTenant);
+        TenantResponse alterado = novoTenant.Result;
+        alterado.Referencia = "TEN ALTERADO " + DateTime.Now.ToString();
+        alterado.Descricao = "TEN DESC ALTERADO " + DateTime.Now.ToString();
+        var tenantAlterado = tenant.Alterar(httpClient, alterado);
+        Console.WriteLine("Referencia alterada tenant : " + tenantAlterado.Result.Referencia);
+        Console.WriteLine("Descrição alterada tenant : " + tenantAlterado.Result.Descricao);
+        Console.WriteLine("-----------------------------------------------------");
+
+
+        var ok = tenant.ListarNumeros(httpClient);
+        IEnumerable<int> okf = await tenant.ListarNumeros2(httpClient);
+        Defeito defeito = new Defeito();
+        //Task<HttpResponseMessage> response;
+
+        //Defeito defeito1 = new Defeito();
+        //defeito.Referencia = "DEF AUT" + DateTime.Now.ToString();
+        //defeito.Descricao = "DEF AUT DESC " + DateTime.Now.ToString();
+        //defeito.Id_Tenant = tenantId;
+        //response = defeito1.Incluir(httpClient, defeito);
+
+        //response = tenant.Incluir(httpClient);
 
 
         //#region IncluirDefeito
@@ -33,15 +70,15 @@ using (HttpClient httpClient = new HttpClient())
         //}
         //#endregion
 
-        #region AlterarListarDefeito
-        Task<List<DefeitoResponse>> listatenants = defeito.ListarTodos(httpClient);
-        foreach (DefeitoResponse defeitoItem in listatenants.Result.ToList())
-        {
-            Console.WriteLine("Excluindo: " + defeitoItem.Descricao.ToString());
-            response = defeito.Alterar(httpClient, defeitoItem);
-            Console.WriteLine("Excluindo: " + response.Result.StatusCode);
-        }
-        #endregion
+        //#region AlterarListarDefeito
+        //Task<List<DefeitoResponse>> listatenants = defeito.ListarTodos(httpClient);
+        //foreach (DefeitoResponse defeitoItem in listatenants.Result.ToList())
+        //{
+        //    Console.WriteLine("Excluindo: " + defeitoItem.Descricao.ToString());
+        //    response = defeito.Alterar(httpClient, defeitoItem);
+        //    Console.WriteLine("Excluindo: " + response.Result.StatusCode);
+        //}
+        //#endregion
 
 
         //#region ListarNumeros

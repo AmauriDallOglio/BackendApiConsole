@@ -9,37 +9,43 @@ namespace BackendApiConsole.Nucleo
         public string Descricao { get; set; }
 
 
-        public async Task<HttpResponseMessage> Incluir(HttpClient httpClient, string Referencia, string Descricao)
+        public async Task<TenantResponse> Incluir(HttpClient httpClient)
         {
+
+            string refencia = "TEN" + DateTime.Now.ToString();
+            string descricao = "TEN DESC " + DateTime.Now.ToString();
+
             string apiUrl = "https://localhost:7076/api/v1/Tenant/Inserir";
 
             // Dados do produto iPad
             var produto_ipad = new Tenant()
             {
-                Referencia = Referencia,
-                Descricao = Descricao
+                Referencia = refencia,
+                Descricao = descricao
             };
             // Converter objeto para JSON
             string jsonData = JsonConvert.SerializeObject(produto_ipad);
             // Realizar uma solicitação POST à API
             HttpResponseMessage response = await httpClient.PostAsync(apiUrl, new StringContent(jsonData, Encoding.UTF8, "application/json"));
-            return response;
-
+            var content = response.Content.ReadAsStringAsync().Result;
+            TenantResponse novo = JsonConvert.DeserializeObject<TenantResponse>(content);
+            return novo;
         }
 
 
-        public async Task<HttpResponseMessage> Alterar(HttpClient httpClient, TenantResponse tenant)
+        public async Task<TenantResponse> Alterar(HttpClient httpClient, TenantResponse tenant)
         {
             string apiUrl = "https://localhost:7076/api/v1/Tenant/Alterar";
 
-            // Dados do produto iPad
-            tenant.Descricao = DateTime.Now.ToString();
-
+    
             // Converter objeto para JSON
             string jsonData = JsonConvert.SerializeObject(tenant);
             // Realizar uma solicitação POST à API
             HttpResponseMessage response = await httpClient.PutAsync(apiUrl, new StringContent(jsonData, Encoding.UTF8, "application/json"));
-            return response;
+            var content = response.Content.ReadAsStringAsync().Result;
+            TenantResponse alterado = JsonConvert.DeserializeObject<TenantResponse>(content);
+            return alterado;
+            ;
 
         }
 
@@ -75,8 +81,31 @@ namespace BackendApiConsole.Nucleo
         {
             string apiUrl = "https://localhost:7076/api/v1/Tenant/ListaNumeros";
             HttpResponseMessage response = httpClient.GetAsync(apiUrl).Result;
+            var content = response.Content.ReadAsStringAsync().Result;
+            IEnumerable<int> lista = JsonConvert.DeserializeObject<IEnumerable<int>>(content);
             return response;
         }
+
+        public async Task<IEnumerable<int>> ListarNumeros2(HttpClient httpClient)
+        {
+            string apiUrl = "https://localhost:7076/api/v1/Tenant/ListaNumeros2";
+            HttpResponseMessage response = httpClient.GetAsync(apiUrl).Result;
+            var content = response.Content.ReadAsStringAsync().Result;
+            IEnumerable<int> lista = JsonConvert.DeserializeObject<IEnumerable<int>>(content);
+            return lista;
+        }
+
+        public async Task<string> ValidaConexao(HttpClient httpClient)
+        {
+            string apiUrl = "https://localhost:7076/api/v1/Tenant/Conexao";
+            HttpResponseMessage response = httpClient.GetAsync(apiUrl).Result;
+            var content = response.Content.ReadAsStringAsync().Result;
+ 
+            return content;
+        }
+
+
+
 
         public async Task<List<TenantResponse>> ListarTodos(HttpClient httpClient)
         {

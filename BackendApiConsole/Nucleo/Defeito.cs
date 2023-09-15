@@ -10,7 +10,7 @@ namespace BackendApiConsole.Nucleo
         public string Referencia { get; set; } = string.Empty;
         public string Descricao { get; set; } = string.Empty;
 
-        public async Task<HttpResponseMessage> Incluir(HttpClient httpClient, DefeitoResponse defeito)
+        public async Task<HttpResponseMessage> Incluir(HttpClient httpClient, Defeito defeito)
         {
             string apiUrl = "https://localhost:7076/api/v1/Defeito/Inserir";
             // Converter objeto para JSON
