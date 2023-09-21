@@ -1,4 +1,6 @@
 ﻿using BackendApiConsole.Nucleo;
+using Newtonsoft.Json;
+using static BackendApiConsole.Nucleo.AtivoTipo;
 using static BackendApiConsole.Nucleo.Defeito;
 
 Guid tenantId = Guid.Parse("A31CF8A0-7B4D-EE11-A89E-F0D41578B814");
@@ -8,6 +10,7 @@ using (HttpClient httpClient = new HttpClient())
     try
     {
         Task<HttpResponseMessage> response;
+
         Console.WriteLine("Tenant: " + tenantId);
         Console.WriteLine("-----------------------------------------------------");
         Console.WriteLine("Tenant Validando conexao ");
@@ -20,24 +23,90 @@ using (HttpClient httpClient = new HttpClient())
         }
         Console.WriteLine("Tenant conexao: " + resultado.Result);
         Console.WriteLine("-----------------------------------------------------");
-        Console.WriteLine("Tenant INSERIR: " + resultado.Result);
-        Task<TenantResponse> novoTenant = tenant.Incluir(httpClient);
-        Guid idTenant = novoTenant.Result.Id;
-        Console.WriteLine("Novo tenant : " + idTenant);
-        Console.WriteLine("-----------------------------------------------------");
-        Console.WriteLine("Tenant ALTERAR: " + idTenant);
-        TenantResponse alterado = novoTenant.Result;
-        alterado.Referencia = "TEN ALTERADO " + DateTime.Now.ToString();
-        alterado.Descricao = "TEN DESC ALTERADO " + DateTime.Now.ToString();
-        var tenantAlterado = tenant.Alterar(httpClient, alterado);
-        Console.WriteLine("Referencia alterada tenant : " + tenantAlterado.Result.Referencia);
-        Console.WriteLine("Descrição alterada tenant : " + tenantAlterado.Result.Descricao);
-        Console.WriteLine("-----------------------------------------------------");
+
+        //Console.WriteLine("Tenant INSERIR: " + resultado.Result);
+        //Task<TenantResponse> novoTenant = tenant.Incluir(httpClient);
+        //Guid idTenant = novoTenant.Result.Id;
+        //Console.WriteLine("Novo tenant : " + idTenant);
+        //Console.WriteLine("-----------------------------------------------------");
+        //Console.WriteLine("Tenant ALTERAR: " + idTenant);
+        //TenantResponse alterado = novoTenant.Result;
+        //alterado.Referencia = "TEN ALTERADO " + DateTime.Now.ToString();
+        //alterado.Descricao = "TEN DESC ALTERADO " + DateTime.Now.ToString();
+        //var tenantAlterado = tenant.Alterar(httpClient, alterado);
+        //Console.WriteLine("Referencia alterada tenant : " + tenantAlterado.Result.Referencia);
+        //Console.WriteLine("Descrição alterada tenant : " + tenantAlterado.Result.Descricao);
+        //Console.WriteLine("-----------------------------------------------------");
 
 
-        var ok = tenant.ListarNumeros(httpClient);
-        IEnumerable<int> okf = await tenant.ListarNumeros2(httpClient);
-        Defeito defeito = new Defeito();
+        Console.WriteLine("-----------------------------------------------------");
+        Console.WriteLine("Ativo Tipo Inserir ");
+        Console.WriteLine("-----------------------------------------------------");
+        AtivoTipo ativoTipo = new AtivoTipo();
+
+        resultado = ativoTipo.ValidaConexao(httpClient);
+        if (resultado.Result != "Ok")
+        {
+            Console.WriteLine("AtivoTipo conexao: " + resultado);
+            return;
+        }
+        Console.WriteLine("AtivoTipo conexao: " + resultado.Result);
+        for (int i = 0; i < 1000; i++)
+        {
+            Console.WriteLine("Inserindo " + i);
+            ativoTipo.Referencia = "AtivoTipo " + i  + " - " + DateTime.Now.ToString();
+            ativoTipo.Descricao = "AtivoTipo " + i  + " - " + DateTime.Now.ToString();
+            ativoTipo.Id_Tenant = tenantId;
+
+            var resposta = ativoTipo.Incluir(httpClient, ativoTipo);
+            if (resposta.Result.Sucesso)
+            {
+                Console.WriteLine("AtivoTipo conexao: " + (resposta.Result != null ? resposta.Result.Modelo.Id.ToString() : "Nenhum valor disponível"));
+           
+            }
+        }
+        Console.WriteLine("-----------------------------------------------------");
+        Console.WriteLine("Ativo Tipo Listar ");
+        Console.WriteLine("-----------------------------------------------------");
+        List<ListarTodos> lista = await ativoTipo.ListarTodos(httpClient, "AtivoTipo ");
+     
+        Console.WriteLine("AtivoTipo total de  : " + lista.Count());
+       
+        Console.WriteLine("-----------------------------------------------------");
+        Console.WriteLine("Ativo Tipo Excluindo ");
+        Console.WriteLine("-----------------------------------------------------");
+        int contador = 0;
+        foreach (var item in lista)
+        {
+            var responseExcluir = await ativoTipo.Excluir(httpClient, item.Id);
+       
+            if (responseExcluir.IsSuccessStatusCode)
+            {
+                string apiResponse = await responseExcluir.Content.ReadAsStringAsync();
+                var tenantExcluirResponse = JsonConvert.DeserializeObject<Resposta>(apiResponse);
+                if (tenantExcluirResponse.Sucesso)
+                {
+                    contador++;
+                    Console.WriteLine("AtivoTipo excluindo: " + contador + " / " + (tenantExcluirResponse.Modelo.Id != null ? tenantExcluirResponse.Modelo.Id.ToString() : "Nenhum valor disponível"));
+
+                }
+            }
+        }
+
+
+        //Console.WriteLine("-----------------------------------------------------");
+
+        //Defeito defeito = new Defeito();
+        //defeito.Referencia = "DEF AUT" + DateTime.Now.ToString();
+        //defeito.Descricao = "DEF AUT DESC " + DateTime.Now.ToString();
+        //defeito.Id_Tenant = tenantId;
+        //defeito.Incluir(httpClient, defeito);
+
+
+
+        //var ok = tenant.ListarNumeros(httpClient);
+        //IEnumerable<int> okf = await tenant.ListarNumeros2(httpClient);
+        //Defeito defeito = new Defeito();
         //Task<HttpResponseMessage> response;
 
         //Defeito defeito1 = new Defeito();
