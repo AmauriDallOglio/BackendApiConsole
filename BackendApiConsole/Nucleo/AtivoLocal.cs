@@ -4,28 +4,32 @@ using static BackendApiConsole.Nucleo.EntidadeModelo;
 
 namespace BackendApiConsole.Nucleo
 {
-    public class AtivoTipo
+    public class AtivoLocal
     {
-       
-        public Guid Id_Tenant { get; set; }
-        public string Referencia { get; set; }  
-        public string Descricao { get; set; }
+
+        
+        public Guid Id_Tenant { get; set; } // Tipo: uniqueidentifier
+        public string Referencia { get; set; } = string.Empty;  // Tipo: varchar(50)
+        public string Area { get; set; } = string.Empty; // Tipo: varchar(50)
+        public string Setor { get; set; } = string.Empty; // Tipo: varchar(50)
+        public string Descricao { get; set; } = string.Empty; // Tipo: varchar(300)
+    
 
 
         public async Task<string> ValidaConexao(HttpClient httpClient)
         {
-            string apiUrl = "https://localhost:7076/api/v1/AtivoTipo/Conexao";
+            string apiUrl = "https://localhost:7076/api/v1/AtivoLocal/Conexao";
             HttpResponseMessage response = httpClient.GetAsync(apiUrl).Result;
             var content = response.Content.ReadAsStringAsync().Result;
             return content;
         }
 
 
-        public async Task<Resposta> Incluir(HttpClient httpClient, AtivoTipo ativoTipo)
+        public async Task<Resposta> Incluir(HttpClient httpClient, AtivoLocal entidade)
         {
-            string apiUrl = "https://localhost:7076/api/v1/AtivoTipo/Inserir";
+            string apiUrl = "https://localhost:7076/api/v1/AtivoLocal/Inserir";
             // Converter objeto para JSON
-            string jsonData = JsonConvert.SerializeObject(ativoTipo);
+            string jsonData = JsonConvert.SerializeObject(entidade);
             // Realizar uma solicitação POST à API
             HttpResponseMessage response = await httpClient.PostAsync(apiUrl, new StringContent(jsonData, Encoding.UTF8, "application/json"));
             var content = response.Content.ReadAsStringAsync().Result;
@@ -36,7 +40,7 @@ namespace BackendApiConsole.Nucleo
         public async Task<HttpResponseMessage> Excluir(HttpClient httpClient, Guid id)
         {
             // Monta o corpo da solicitação em formato JSON
-            string apiUrl = "https://localhost:7076/api/v1/AtivoTipo/Excluir";
+            string apiUrl = "https://localhost:7076/api/v1/AtivoLocal/Excluir";
             // Criar o objeto de solicitação
             Excluir requestData = new Excluir
             {
@@ -57,35 +61,28 @@ namespace BackendApiConsole.Nucleo
 
         public async Task<List<ListarTodos>> ListarTodos(HttpClient httpClient, string pesquisa)
         {
-            string apiUrl = "https://localhost:7076/api/v1/AtivoTipo/ListarTodos?Descricao=ativoTipo";
+            string apiUrl = $"https://localhost:7076/api/v1/AtivoLocal/ListarTodos?Descricao={pesquisa}";
             HttpResponseMessage response = httpClient.GetAsync(apiUrl).Result;
             var content = response.Content.ReadAsStringAsync().Result;
             List<ListarTodos> listagem = JsonConvert.DeserializeObject<List<ListarTodos>>(content);
-            //foreach (var tenant in tenants)
-            //{
-            //    var retorno = tenant;
-            //    //Excluir(httpClient, retorno.Id);
-            //}
             return listagem;
-          
         }
 
-        //public class Resposta
-        //{
-        //    public Modelo Modelo { get; set; }
-        //    public bool Sucesso { get; set; }
-        //    public string Mensagem { get; set; }
-
-        //}
-
-        //public class Modelo
-        //{
-        //    public string Id { get; set; }
-        //}
+       
     }
 
+    public class Resposta
+    {
+        public Modelo Modelo { get; set; }
+        public bool Sucesso { get; set; }
+        public string Mensagem { get; set; }
 
+    }
 
-    
+    public class Modelo
+    {
+        public string Id { get; set; }
+    }
 
+   
 }
