@@ -71,18 +71,18 @@ namespace BackendApiConsole.Nucleo
        
     }
 
-    public class Resposta
-    {
-        public Modelo Modelo { get; set; }
-        public bool Sucesso { get; set; }
-        public string Mensagem { get; set; }
+    //public class Resposta
+    //{
+    //    public Modelo Modelo { get; set; }
+    //    public bool Sucesso { get; set; }
 
-    }
 
-    public class Modelo
-    {
-        public string Id { get; set; }
-    }
+    //}
+
+    //public class Modelo
+    //{
+    //    public string Id { get; set; }
+    //}
 
    
 }

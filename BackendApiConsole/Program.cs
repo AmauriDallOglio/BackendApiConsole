@@ -2,7 +2,8 @@
 using Newtonsoft.Json;
 using static BackendApiConsole.Nucleo.EntidadeModelo;
 
-Guid tenantId = Guid.Parse("A31CF8A0-7B4D-EE11-A89E-F0D41578B814");
+Guid tenantId = Guid.Parse("A31CF8A0-7B4D-EE11-A89E-F0D41578B814"); //c
+//Guid tenantId = Guid.Parse("62643056-F34C-EE11-9829-5CCD5B8BDCFF"); //o
 
 using (HttpClient httpClient = new HttpClient())
 {
@@ -52,7 +53,7 @@ using (HttpClient httpClient = new HttpClient())
             return;
         }
         Console.WriteLine("AtivoTipo conexao: " + resultado.Result);
-        for (int i = 0; i < 100; i++)
+        for (int i = 0; i < 1000; i++)
         {
             Console.WriteLine("Inserindo " + i);
             ativoTipo.Referencia = "AtivoTipo " + i + " - " + DateTime.Now.ToString();
@@ -60,11 +61,29 @@ using (HttpClient httpClient = new HttpClient())
             ativoTipo.Id_Tenant = tenantId;
 
             var resposta = ativoTipo.Incluir(httpClient, ativoTipo);
-            if (resposta.Result.Sucesso)
-            {
-                Console.WriteLine("AtivoTipo conexao: " + (resposta.Result != null ? resposta.Result.Modelo.Id.ToString() : "Nenhum valor disponível"));
 
+            switch (resposta.Result.Sucesso)
+            {
+                case true:
+                    var id = resposta.Result.Modelo?.Id ?? "Nenhum valor disponível";
+                    Console.WriteLine($"AtivoTipo conexao: {id}");
+                    break;
+                case false:
+                    Console.WriteLine($"AtivoTipo conexao: {resposta.Result.Mensagem}");
+                    break;
             }
+
+
+            //if (resposta.Result.Sucesso)
+            //{
+            //    Console.WriteLine("AtivoTipo conexao: " + (resposta.Result != null ? resposta.Result.Modelo.Id.ToString() : "Nenhum valor disponível"));
+
+            //}
+            //if (!resposta.Result.Sucesso)
+            //{
+            //    Console.WriteLine("AtivoTipo conexao: " + (resposta.Result.Mensagem));
+
+            //}
         }
         Console.WriteLine("-----------------------------------------------------");
         Console.WriteLine("Ativo Tipo Listar ");
@@ -84,7 +103,7 @@ using (HttpClient httpClient = new HttpClient())
             if (responseExcluir.IsSuccessStatusCode)
             {
                 string apiResponse = await responseExcluir.Content.ReadAsStringAsync();
-                var tenantExcluirResponse = JsonConvert.DeserializeObject<BackendApiConsole.Nucleo.Resposta>(apiResponse);
+                var tenantExcluirResponse = JsonConvert.DeserializeObject<Resposta>(apiResponse);
                 if (tenantExcluirResponse.Sucesso)
                 {
                     contador++;
@@ -106,7 +125,7 @@ using (HttpClient httpClient = new HttpClient())
             return;
         }
         Console.WriteLine("ativoLocal conexao: " + resultado.Result);
-        for (int i = 0; i < 100; i++)
+        for (int i = 0; i < 1000; i++)
         {
             Console.WriteLine("Inserindo " + i);
             ativoLocal.Referencia = "AtivoLocal " + i + " - " + DateTime.Now.ToString();
@@ -143,7 +162,7 @@ using (HttpClient httpClient = new HttpClient())
             if (responseExcluir.IsSuccessStatusCode)
             {
                 string apiResponse = await responseExcluir.Content.ReadAsStringAsync();
-                var resultadoExcluir = JsonConvert.DeserializeObject<BackendApiConsole.Nucleo.Resposta>(apiResponse);
+                var resultadoExcluir = JsonConvert.DeserializeObject<Resposta>(apiResponse);
                 if (resultadoExcluir.Sucesso)
                 {
                     contador++;

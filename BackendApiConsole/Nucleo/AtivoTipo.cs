@@ -30,6 +30,11 @@ namespace BackendApiConsole.Nucleo
             HttpResponseMessage response = await httpClient.PostAsync(apiUrl, new StringContent(jsonData, Encoding.UTF8, "application/json"));
             var content = response.Content.ReadAsStringAsync().Result;
             Resposta novo = JsonConvert.DeserializeObject<Resposta>(content);
+            if (novo.Mensagem == null) 
+            {
+               
+                novo.Mensagem = response.StatusCode.ToString() + " - " + response.ReasonPhrase.ToString(); 
+            }
             return novo;
         }
 
