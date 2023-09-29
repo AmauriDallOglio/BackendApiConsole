@@ -30,6 +30,11 @@ namespace BackendApiConsole.Nucleo
             HttpResponseMessage response = await httpClient.PostAsync(apiUrl, new StringContent(jsonData, Encoding.UTF8, "application/json"));
             var content = response.Content.ReadAsStringAsync().Result;
             Resposta novo = JsonConvert.DeserializeObject<Resposta>(content);
+            if (novo.Mensagem == null) 
+            {
+               
+                novo.Mensagem = response.StatusCode.ToString() + " - " + response.ReasonPhrase.ToString(); 
+            }
             return novo;
         }
 
@@ -57,7 +62,7 @@ namespace BackendApiConsole.Nucleo
 
         public async Task<List<ListarTodos>> ListarTodos(HttpClient httpClient, string pesquisa)
         {
-            string apiUrl = "https://localhost:7076/api/v1/AtivoTipo/ListarTodos?Descricao=ativoTipo";
+            string apiUrl = $"https://localhost:7076/api/v1/AtivoTipo/ListarTodos?Descricao={pesquisa}";
             HttpResponseMessage response = httpClient.GetAsync(apiUrl).Result;
             var content = response.Content.ReadAsStringAsync().Result;
             List<ListarTodos> listagem = JsonConvert.DeserializeObject<List<ListarTodos>>(content);

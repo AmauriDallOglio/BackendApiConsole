@@ -14,6 +14,11 @@ namespace BackendApiConsole.Nucleo
             public bool Sucesso { get; set; }
             public string Mensagem { get; set; }
 
+            public List<string> Messages { get; set; } = new List<string>();
+
+            public bool Succeeded { get; set; }
+
+            public string Data { get; set; }
         }
 
         public class Modelo
