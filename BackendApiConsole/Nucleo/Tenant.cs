@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.Text;
+using static BackendApiConsole.Nucleo.EntidadeModelo;
 
 namespace BackendApiConsole.Nucleo
 {
@@ -9,35 +10,23 @@ namespace BackendApiConsole.Nucleo
         public string Descricao { get; set; }
 
 
-        public async Task<TenantResponse> Incluir(HttpClient httpClient)
+
+        public async Task<ResultadoOperacao.Resposta> Incluir(HttpClient httpClient, Tenant entidade, string apiUrl)
         {
-
-            string refencia = "TEN" + DateTime.Now.ToString();
-            string descricao = "TEN DESC " + DateTime.Now.ToString();
-
-            string apiUrl = "https://localhost:7076/api/v1/Tenant/Inserir";
-
-            // Dados do produto iPad
-            var produto_ipad = new Tenant()
-            {
-                Referencia = refencia,
-                Descricao = descricao
-            };
-            // Converter objeto para JSON
-            string jsonData = JsonConvert.SerializeObject(produto_ipad);
-            // Realizar uma solicitação POST à API
+            string jsonData = JsonConvert.SerializeObject(entidade);
             HttpResponseMessage response = await httpClient.PostAsync(apiUrl, new StringContent(jsonData, Encoding.UTF8, "application/json"));
             var content = response.Content.ReadAsStringAsync().Result;
-            TenantResponse novo = JsonConvert.DeserializeObject<TenantResponse>(content);
+            ResultadoOperacao.Resposta novo = JsonConvert.DeserializeObject<ResultadoOperacao.Resposta>(content);
             return novo;
         }
+
+ 
 
 
         public async Task<TenantResponse> Alterar(HttpClient httpClient, TenantResponse tenant)
         {
             string apiUrl = "https://localhost:7076/api/v1/Tenant/Alterar";
 
-    
             // Converter objeto para JSON
             string jsonData = JsonConvert.SerializeObject(tenant);
             // Realizar uma solicitação POST à API
@@ -49,33 +38,26 @@ namespace BackendApiConsole.Nucleo
 
         }
 
-        public async Task<HttpResponseMessage> Excluir(HttpClient httpClient, Guid id)
+
+        public async Task<HttpResponseMessage> Excluir(HttpClient httpClient, Guid id, string apiUrl)
         {
-            // Monta o corpo da solicitação em formato JSON
-            string apiUrl = "https://localhost:7076/api/v1/Tenant/Excluir";
-            // Criar o objeto de solicitação
-            TenantExcluir requestData = new TenantExcluir
+
+            Excluir requestData = new Excluir
             {
                 Id = id
             };
-            // Converte os dados de entrada em formato JSON
             string jsonBody = Newtonsoft.Json.JsonConvert.SerializeObject(requestData);
-            // Cria a solicitação DELETE com o corpo JSON
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Delete, apiUrl)
             {
                 Content = new StringContent(jsonBody, System.Text.Encoding.UTF8, "application/json")
             };
-            // Envia a solicitação DELETE
             HttpResponseMessage response = await httpClient.SendAsync(request);
-            if (response.IsSuccessStatusCode)
-            {
-                string apiResponse = await response.Content.ReadAsStringAsync();
-                var tenantExcluirResponse = JsonConvert.DeserializeObject<TenantExcluir>(apiResponse);
-                Console.WriteLine("Solicitação DELETE bem-sucedida!");
-                // Lide com a resposta da API aqui
-            }
+
+
             return response;
         }
+
+
 
         public async Task<HttpResponseMessage> ListarNumeros(HttpClient httpClient)
         {
@@ -95,9 +77,9 @@ namespace BackendApiConsole.Nucleo
             return lista;
         }
 
-        public async Task<string> ValidaConexao(HttpClient httpClient)
+        public async Task<string> ValidaConexao(HttpClient httpClient, string apiUrl)
         {
-            string apiUrl = "https://localhost:7076/api/v1/Tenant/Conexao";
+
             HttpResponseMessage response = httpClient.GetAsync(apiUrl).Result;
             var content = response.Content.ReadAsStringAsync().Result;
  
@@ -106,23 +88,60 @@ namespace BackendApiConsole.Nucleo
 
 
 
+        //public async Task<Tenantlistar> ListarTodos(HttpClient httpClient, string apiUrl)
+        //{
+        //    var stopwatch = new Stopwatch();
+        //    stopwatch.Start();
+        //    Console.WriteLine($"-- Início da requisição às {DateTime.Now}");
 
-        public async Task<List<TenantResponse>> ListarTodos(HttpClient httpClient)
+
+
+        //    HttpResponseMessage response = httpClient.GetAsync(apiUrl).Result;
+        //    var content = response.Content.ReadAsStringAsync().Result;
+        //    Tenantlistar listagem = JsonConvert.DeserializeObject<Tenantlistar>(content);
+
+        //    stopwatch.Stop();
+        //    Console.WriteLine($"--- Fim da requisição às {DateTime.Now}. Tempo total: {stopwatch.ElapsedMilliseconds}ms");
+
+
+        //    return listagem;
+        //}
+
+
+
+        public async Task<RetornoTenant> ListarTodos(HttpClient httpClient, string apiUrl)
         {
-            string apiUrl = "https://localhost:7076/api/v1/Tenant/ListarTodos?Descricao";
             HttpResponseMessage response = httpClient.GetAsync(apiUrl).Result;
             var content = response.Content.ReadAsStringAsync().Result;
-            List<TenantResponse> tenants = JsonConvert.DeserializeObject<List<TenantResponse>>(content);
-            //foreach (var tenant in tenants)
-            //{
-            //    var retorno = tenant;
-            //    //Excluir(httpClient, retorno.Id);
-            //}
-            return tenants;
+            RetornoTenant listagem = JsonConvert.DeserializeObject<RetornoTenant>(content);
+            return listagem;
         }
 
 
 
+
+
+
+    }
+
+
+    public class Item
+    {
+        public string Referencia { get; set; }
+        public string Descricao { get; set; }
+        public bool Inativo { get; set; }
+        public object Id_Imagem { get; set; }
+        public string Id { get; set; }
+    }
+
+    public class RetornoTenant
+    {
+        public int ItemPorPagina { get; set; }
+        public int TotalPagina { get; set; }
+        public int TotalRegistros { get; set; }
+        public int TotalRegistrosFiltrados { get; set; }
+        public string NomeObjeto { get; set; }
+        public List<Item> Items { get; set; }
     }
 
 

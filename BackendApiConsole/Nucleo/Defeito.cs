@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Diagnostics;
 using System.Text;
 using static BackendApiConsole.Nucleo.EntidadeModelo;
 
@@ -11,9 +12,9 @@ namespace BackendApiConsole.Nucleo
         public string Referencia { get; set; } = string.Empty;
         public string Descricao { get; set; } = string.Empty;
 
-        public async Task<string> ValidaConexao(HttpClient httpClient)
+        public async Task<string> ValidaConexao(HttpClient httpClient, string apiUrl)
         {
-            string apiUrl = "https://localhost:7076/api/v1/Defeito/Conexao";
+
             HttpResponseMessage response = httpClient.GetAsync(apiUrl).Result;
             var content = response.Content.ReadAsStringAsync().Result;
             return content;
@@ -22,6 +23,10 @@ namespace BackendApiConsole.Nucleo
 
         public async Task<Resposta> Incluir(HttpClient httpClient, Defeito defeito)
         {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            Console.WriteLine($"-- Início da requisição às {DateTime.Now}");
+
             string apiUrl = "https://localhost:7076/api/v1/Defeito/Inserir";
             // Converter objeto para JSON
             string jsonData = JsonConvert.SerializeObject(defeito);
@@ -29,6 +34,10 @@ namespace BackendApiConsole.Nucleo
             HttpResponseMessage response = await httpClient.PostAsync(apiUrl, new StringContent(jsonData, Encoding.UTF8, "application/json"));
             var content = response.Content.ReadAsStringAsync().Result;
             Resposta novo = JsonConvert.DeserializeObject<Resposta>(content);
+
+            stopwatch.Stop();
+            Console.WriteLine($"--- Fim da requisição às {DateTime.Now}. Tempo total: {stopwatch.ElapsedMilliseconds}ms");
+
             return novo;
         }
 
@@ -49,32 +58,45 @@ namespace BackendApiConsole.Nucleo
 
         public async Task<HttpResponseMessage> Excluir(HttpClient httpClient, Guid id)
         {
-            // Monta o corpo da solicitação em formato JSON
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            Console.WriteLine($"-- Início da requisição às {DateTime.Now}");
+
             string apiUrl = "https://localhost:7076/api/v1/Defeito/Excluir";
-            // Criar o objeto de solicitação
             Excluir requestData = new Excluir
             {
                 Id = id
             };
-            // Converte os dados de entrada em formato JSON
             string jsonBody = Newtonsoft.Json.JsonConvert.SerializeObject(requestData);
-            // Cria a solicitação DELETE com o corpo JSON
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Delete, apiUrl)
             {
                 Content = new StringContent(jsonBody, System.Text.Encoding.UTF8, "application/json")
             };
-            // Envia a solicitação DELETE
             HttpResponseMessage response = await httpClient.SendAsync(request);
+
+            stopwatch.Stop();
+            Console.WriteLine($"--- Fim da requisição às {DateTime.Now}. Tempo total: {stopwatch.ElapsedMilliseconds}ms");
+
             return response;
         }
 
 
         public async Task<List<ListarTodos>> ListarTodos(HttpClient httpClient, string pesquisa)
         {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            Console.WriteLine($"-- Início da requisição às {DateTime.Now}");
+
+
             string apiUrl = $"https://localhost:7076/api/v1/Defeito/ListarTodos?Descricao={pesquisa}";
             HttpResponseMessage response = httpClient.GetAsync(apiUrl).Result;
             var content = response.Content.ReadAsStringAsync().Result;
             List<ListarTodos> listagem = JsonConvert.DeserializeObject<List<ListarTodos>>(content);
+
+            stopwatch.Stop();
+            Console.WriteLine($"--- Fim da requisição às {DateTime.Now}. Tempo total: {stopwatch.ElapsedMilliseconds}ms");
+
+
             return listagem;
         }
 
